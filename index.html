@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Комната воспоминаний · 3D</title>
 <style>
   :root{color-scheme:dark;font:15px/1.45 system-ui,sans-serif;color:#fff1fa;background:#15101a}
@@ -29,20 +29,45 @@
   label{display:block;margin-top:12px}input[type=url],textarea{display:block;width:100%;background:#17101e;color:#fff;border:1px solid #8c5c8f;border-radius:5px;padding:7px;margin:4px 0 10px}input[type=file]{max-width:100%;margin:5px 0 10px}
   audio{display:block;width:100%;margin:10px 0}ol{padding-left:22px}li+li{margin-top:5px}li button{overflow-wrap:anywhere;text-align:left}
   #notice{min-height:1.2em;color:#ffc2ec}#resume{margin:8px 0}
+  .touch-mode #camera-frame{inset:0;width:100%;height:100%;height:100dvh;aspect-ratio:auto;transform:none;touch-action:none;user-select:none;-webkit-user-select:none}
+  .touch-mode #hud{inset:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) auto max(12px,env(safe-area-inset-left));align-items:center}
+  .touch-mode #hud button{min-height:44px}
+  .touch-mode #hint{bottom:calc(174px + env(safe-area-inset-bottom));width:max-content;max-width:min(430px,89%);font-size:.88rem;padding:6px 10px}
+  .touch-mode .overlay{padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  .touch-mode .card{max-height:88dvh;overscroll-behavior:contain}
+  #touch-stick{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom));left:calc(14px + env(safe-area-inset-left));width:106px;height:106px;border:1px solid #d5a9cf9c;border-radius:50%;background:#1c1126aa;touch-action:none}
+  #touch-stick-knob{position:absolute;top:50%;left:50%;width:43px;height:43px;margin:-21.5px;border-radius:50%;border:1px solid #f0c7e4;background:#a85d9acc;pointer-events:none}
+  #touch-actions{position:absolute;right:calc(12px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(2,minmax(66px,auto));gap:7px;pointer-events:none}
+  #touch-actions button{pointer-events:auto;touch-action:none;min-height:44px;padding:5px 9px;font-size:.87rem;background:#3c2045ed}
+  #touch-actions button:active{background:#8c4186}
+  #touch-actions #touch-use{grid-column:1/-1;background:#843778f5}
 </style>
 <div id="camera-frame">
   <div id="world"></div><div id="tv-view" aria-hidden="true"><div id="yt-plane" hidden></div></div><div id="frame-shading" aria-hidden="true"></div>
   <div id="cross" hidden>·</div>
   <div id="hud" hidden><div id="now">Комната воспоминаний</div><button id="menu" type="button">Меню · tab</button></div>
   <div id="hint" role="status"></div>
+  <div id="touch-controls" hidden>
+    <div id="touch-stick" aria-label="Джойстик для ходьбы"><span id="touch-stick-knob"></span></div>
+    <div id="touch-actions">
+      <button id="touch-use" type="button">Действие</button>
+      <button id="touch-crouch" type="button" aria-pressed="false">Присесть</button>
+      <button id="touch-channel" type="button">Канал ТВ</button>
+      <button id="touch-drop" type="button" hidden>Положить</button>
+      <button id="touch-throw" type="button" hidden>Бросить</button>
+    </div>
+  </div>
 </div>
 <section id="intro" class="overlay">
   <div class="card">
     <p class="muted">Для Фрейм Теймера</p>
     <h1>Комната воспоминаний</h1>
     <p class="muted">Открой холодильник, потуши неон или включи музыку, которая играла на стриме.</p>
-    <p><kbd>W A S D</kbd> идти · движение мыши поворачивает камеру · <kbd>E</kbd> взаимодействовать</p>
-    <p>ЛКМ бросить · <kbd>F</kbd> встать с кресла или пуфика / положить предмет · <kbd>C</kbd> присесть · <kbd>M</kbd> плеер · <kbd>Q</kbd> следующий трек · <kbd>T</kbd> канал ТВ · <kbd>Tab</kbd> меню</p>
+    <div id="desktop-help">
+      <p><kbd>W A S D</kbd> идти · движение мыши поворачивает камеру · <kbd>E</kbd> взаимодействовать</p>
+      <p>ЛКМ бросить · <kbd>F</kbd> встать с кресла или пуфика / положить предмет · <kbd>C</kbd> присесть · <kbd>M</kbd> плеер · <kbd>Q</kbd> следующий трек · <kbd>T</kbd> канал ТВ · <kbd>Tab</kbd> меню</p>
+    </div>
+    <p id="touch-help" hidden>Джойстик слева — ходить. Веди пальцем по сцене справа, чтобы осмотреться. Наведи точку на предмет и нажми «Действие».</p>
     <div class="actions entry-actions">
       <button id="walk" type="button">Войти в комнату</button>
       <button id="open-window" type="button">Открыть в отдельном окне</button>
@@ -63766,6 +63791,8 @@ const saved = JSON.parse($('saved').textContent);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1d1025);
 const cameraFrame=$('camera-frame');
+let touchMode=matchMedia('(pointer: coarse)').matches||(navigator.maxTouchPoints>0&&matchMedia('(hover: none)').matches);
+document.body.classList.toggle('touch-mode',touchMode);
 const cameraAspect=16/9;
 const horizontalFov=THREE.MathUtils.degToRad(98);
 const verticalFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(horizontalFov/2)/cameraAspect));
@@ -63776,7 +63803,7 @@ world.defaultContactMaterial.friction = .38;
 world.defaultContactMaterial.restitution = .29;
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({antialias: true});
+  renderer = new THREE.WebGLRenderer({antialias: !touchMode});
 } catch (error) {
   $('startup').textContent = 'Для комнаты нужен WebGL. Попробуй Chrome или Edge с включённым аппаратным ускорением.';
   $('walk').disabled = true;
@@ -63786,7 +63813,10 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 1.55));
 function resizeCameraFrame(){
   frameWidth=Math.max(1,cameraFrame.clientWidth);
   frameHeight=Math.max(1,cameraFrame.clientHeight);
-  const pixelRatio=Math.min(devicePixelRatio,1.55,Math.sqrt(1500000/(frameWidth*frameHeight)));
+  camera.aspect=touchMode?frameWidth/frameHeight:cameraAspect;
+  camera.fov=touchMode?THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(horizontalFov/2)/camera.aspect)),44,69):verticalFov;
+  camera.updateProjectionMatrix();
+  const pixelRatio=Math.min(devicePixelRatio,touchMode?1.25:1.55,Math.sqrt((touchMode?550000:1500000)/(frameWidth*frameHeight)));
   if(renderer.getPixelRatio()!==pixelRatio)renderer.setPixelRatio(pixelRatio);
   renderer.setSize(frameWidth,frameHeight,false);
 }
@@ -65508,7 +65538,7 @@ function refreshTv(){
     if(video.getAttribute('src')!==localSource)video.src=localSource;
     video.defaultPlaybackRate=active.rate;
     video.playbackRate=active.rate;
-    video.play().catch(()=>noticeInWorld('Подойди к ТВ и нажми E, чтобы запустить видео.'));
+    video.play().catch(()=>noticeInWorld('Для воспроизведения открой «Меню → Телевизор» и нажми «Запустить видео».'));
     return;
   }
   if(!active.id){$('tv-current').textContent=channelLabel+' · Добавь ссылку YouTube или видеофайл.';return;}
@@ -65848,12 +65878,12 @@ function sit(seatName,x,z,yaw,pitch,label){
   player.x=x;player.z=z;
   player.yaw=yaw;player.pitch=pitch;
   pressed.clear();
-  $('now').textContent=label+' · F встать';
+  $('now').textContent=touchMode?label:label+' · F встать';
 }
 function sitAtDesk(){
   if(player.seated)return;
   sit('desk',...deskWorld(0,-.80),chairYaw,-.09,'За компьютером');
-  noticeInWorld('E на мониторе · пульт стрима');
+  noticeInWorld(touchMode?'Наведи точку на монитор и нажми «Действие».':'E на мониторе · пульт стрима');
 }
 function sitOnPouf(){
   sit('pouf',beanbagX,beanbagZ,beanbag.rotation.y+Math.PI,-.05,'На пуфике');
@@ -65880,8 +65910,10 @@ function openPanel(pane='music',output){
   setMouseLook(false);
   if(document.pointerLockElement===renderer.domElement)document.exitPointerLock();
   pressed.clear();
+  resetTouchControls();
   $('panel').hidden=false;
   $('cross').hidden=true;
+  $('touch-controls').hidden=true;
   $('hint').textContent='';
   for(const name of ['music','television','stream']){
     $(name).hidden=name!==pane;
@@ -65894,7 +65926,7 @@ function setMouseLook(active){
   document.body.classList.toggle('mouse-look',active);
 }
 function pointerLockFailed(){
-  if(!walking()||document.pointerLockElement===renderer.domElement)return;
+  if(touchMode||!walking()||document.pointerLockElement===renderer.domElement)return;
   openPanel();
   $('menu-launch').hidden=location.protocol!=='file:';
   noticeInWorld('Браузер заблокировал захват мыши. Открой ссылку на комнату напрямую в Chrome или Edge и нажми «Войти в комнату».');
@@ -65912,15 +65944,28 @@ function resume(){
   $('cross').hidden=false;
   $('notice').textContent='';
   $('menu-launch').hidden=true;
-  startMouseLook();
+  $('touch-controls').hidden=!touchMode;
+  if(!touchMode)startMouseLook();
   if(video.src&&tvOn) video.play().catch(()=>{});
 }
 for(const button of document.querySelectorAll('[data-pane]')) button.onclick=()=>openPanel(button.dataset.pane);
 $('resume').onclick=resume;
 $('menu').onclick=()=>openPanel(player.seated==='desk'?'stream':'music');
 const detachedRoomUrl=new URL(location.href);
-$('intro-launch').hidden=location.protocol!=='file:';
-$('open-window').hidden=detachedRoomUrl.searchParams.get('window')==='1';
+const detached=detachedRoomUrl.searchParams.get('window')==='1';
+function updateControlLayout(){
+  document.body.classList.toggle('touch-mode',touchMode);
+  $('touch-help').hidden=!touchMode;
+  $('desktop-help').hidden=touchMode;
+  $('intro-launch').hidden=touchMode||location.protocol!=='file:';
+  $('open-window').hidden=touchMode||detached;
+  $('menu').textContent=touchMode?'Меню':'Меню · tab';
+  resizeCameraFrame();
+}
+updateControlLayout();
+for(const id of ['walk','resume'])$(id).addEventListener('pointerdown',(event)=>{
+  if(event.pointerType==='touch'&&!touchMode){touchMode=true;updateControlLayout();}
+});
 detachedRoomUrl.searchParams.set('window','1');
 $('open-window').onclick=()=>{
   const width=Math.min(1280,screen.availWidth);
@@ -66023,13 +66068,85 @@ function canStand(x,z){
 }
 function move(dt){
   if(player.seated)return;
-  const lateral=Number(pressed.has('KeyD'))-Number(pressed.has('KeyA'));
-  const depth=Number(pressed.has('KeyW'))-Number(pressed.has('KeyS'));
+  const lateral=Number(pressed.has('KeyD'))-Number(pressed.has('KeyA'))+touchMove.x;
+  const depth=Number(pressed.has('KeyW'))-Number(pressed.has('KeyS'))+touchMove.y;
   const speed=(pressed.has('ShiftLeft')?3.75:2.5)*dt/(Math.hypot(lateral,depth)||1);
   const x=(lateral*Math.cos(player.yaw)-depth*Math.sin(player.yaw))*speed;
   const z=(-lateral*Math.sin(player.yaw)-depth*Math.cos(player.yaw))*speed;
   if(canStand(player.x+x,player.z)) player.x+=x;
   if(canStand(player.x,player.z+z)) player.z+=z;
+}
+
+function interact(){
+  current=getInteraction();
+  if(current?.prop&&held)release(false);
+  else current?.run();
+}
+function putDownOrStand(){
+  if(player.seated)standFromSeat();
+  else release(false);
+}
+function toggleCrouch(){if(!player.seated)player.crouch=!player.crouch;}
+
+const touchMove={x:0,y:0};
+const touchStick=$('touch-stick');
+const lookSurface=renderer.domElement;
+let moveTouch=null,lookTouch=null;
+function clearStick(){
+  moveTouch=null;
+  touchMove.x=touchMove.y=0;
+  $('touch-stick-knob').style.transform='';
+}
+function resetTouchControls(){
+  if(moveTouch!==null&&touchStick.hasPointerCapture(moveTouch))touchStick.releasePointerCapture(moveTouch);
+  if(lookTouch&&lookSurface.hasPointerCapture(lookTouch.id))lookSurface.releasePointerCapture(lookTouch.id);
+  clearStick();
+  lookTouch=null;
+}
+function updateStick(event){
+  const bounds=touchStick.getBoundingClientRect();
+  const radius=bounds.width*.34;
+  const dx=event.clientX-bounds.left-bounds.width/2;
+  const dy=event.clientY-bounds.top-bounds.height/2;
+  const length=Math.hypot(dx,dy);
+  const travel=Math.min(length,radius);
+  const directionX=length?dx/length:0,directionY=length?dy/length:0;
+  const amount=THREE.MathUtils.clamp((travel/radius-.12)/.88,0,1);
+  touchMove.x=directionX*amount;
+  touchMove.y=-directionY*amount;
+  $('touch-stick-knob').style.transform=`translate(${directionX*travel}px,${directionY*travel}px)`;
+}
+touchStick.addEventListener('pointerdown',(event)=>{
+  if(!walking()||moveTouch!==null||event.button!==0)return;
+  event.preventDefault();
+  moveTouch=event.pointerId;
+  touchStick.setPointerCapture(moveTouch);
+  updateStick(event);
+});
+touchStick.addEventListener('pointermove',(event)=>{if(event.pointerId===moveTouch)updateStick(event);});
+lookSurface.addEventListener('pointerdown',(event)=>{
+  if(!touchMode||!walking()||lookTouch||event.button!==0)return;
+  event.preventDefault();
+  lookTouch={id:event.pointerId,x:event.clientX,y:event.clientY};
+  lookSurface.setPointerCapture(lookTouch.id);
+});
+lookSurface.addEventListener('pointermove',(event)=>{
+  if(!lookTouch||lookTouch.id!==event.pointerId||!walking())return;
+  player.yaw-=(event.clientX-lookTouch.x)*.005;
+  player.pitch=THREE.MathUtils.clamp(player.pitch-(event.clientY-lookTouch.y)*.005,-1.38,1.38);
+  lookTouch.x=event.clientX;lookTouch.y=event.clientY;
+});
+for(const type of ['pointerup','pointercancel','lostpointercapture']){
+  touchStick.addEventListener(type,(event)=>{if(event.pointerId===moveTouch)clearStick();});
+  lookSurface.addEventListener(type,(event)=>{if(lookTouch?.id===event.pointerId)lookTouch=null;});
+}
+for(const [id,action] of [['touch-use',interact],['touch-crouch',toggleCrouch],
+  ['touch-channel',nextChannel],['touch-drop',putDownOrStand],['touch-throw',()=>release(true)]]){
+  const button=$(id);
+  button.addEventListener('pointerdown',(event)=>{
+    if(walking()&&event.button===0){event.preventDefault();action();}
+  });
+  button.addEventListener('click',(event)=>{if(event.detail===0&&walking())action();});
 }
 
 document.addEventListener('mousemove',(event)=>{
@@ -66038,7 +66155,7 @@ document.addEventListener('mousemove',(event)=>{
   player.pitch=THREE.MathUtils.clamp(player.pitch-event.movementY*.0024,-1.38,1.38);
 });
 renderer.domElement.addEventListener('mousedown',(event)=>{
-  if(!walking()||event.button!==0)return;
+  if(touchMode||!walking()||event.button!==0)return;
   if(!mouseLook)startMouseLook();
   else if(held)release(true);
   else{
@@ -66054,16 +66171,9 @@ document.addEventListener('keydown',(event)=>{
   switch(event.code){
     case 'Tab':event.preventDefault();openPanel(player.seated==='desk'?'stream':'music');break;
     case 'Escape':openPanel(player.seated==='desk'?'stream':'music');break;
-    case 'KeyE':
-      current=getInteraction();
-      if(current?.prop&&held)release(false);
-      else current?.run();
-      break;
-    case 'KeyF':
-      if(player.seated)standFromSeat();
-      else release(false);
-      break;
-    case 'KeyC':if(!player.seated)player.crouch=!player.crouch;break;
+    case 'KeyE':interact();break;
+    case 'KeyF':putDownOrStand();break;
+    case 'KeyC':toggleCrouch();break;
     case 'KeyQ':playTrack(trackIndex+1);break;
     case 'KeyT':nextChannel();break;
     case 'KeyM':
@@ -66073,7 +66183,8 @@ document.addEventListener('keydown',(event)=>{
   }
 });
 document.addEventListener('keyup',(event)=>pressed.delete(event.code));
-window.addEventListener('blur',()=>pressed.clear());
+window.addEventListener('blur',()=>{pressed.clear();resetTouchControls();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)resetTouchControls();});
 document.addEventListener('pointerlockerror',pointerLockFailed);
 document.addEventListener('pointerlockchange',()=>{
   const locked=document.pointerLockElement===renderer.domElement;
@@ -66096,11 +66207,21 @@ camera.matrixWorldAutoUpdate=false;
 let nextInteractionTick=0,nextMonitorTick=0,nextStreamTick=0;
 const interactionHint=$('hint');
 const monitorView=new THREE.Vector3();
+const touchDrop=$('touch-drop'),touchThrow=$('touch-throw'),touchCrouch=$('touch-crouch');
+function updateTouchButtons(){
+  const dropLabel=player.seated?'Встать':'Положить';
+  if(touchDrop.textContent!==dropLabel)touchDrop.textContent=dropLabel;
+  const hideDrop=!held&&!player.seated;
+  if(touchDrop.hidden!==hideDrop)touchDrop.hidden=hideDrop;
+  if(touchThrow.hidden!==!held)touchThrow.hidden=!held;
+  const crouched=String(player.crouch);
+  if(touchCrouch.getAttribute('aria-pressed')!==crouched)touchCrouch.setAttribute('aria-pressed',crouched);
+}
 renderer.setAnimationLoop((tick)=>{
   const t=tick*.001;
   const dt=Math.min(t-(renderer.lastTick??t),.05);
   renderer.lastTick=t;
-  if(walking()&&mouseLook) move(dt);
+  if(walking()&&(mouseLook||touchMode)) move(dt);
   const eyeHeight=player.seated==='desk'?1.205:player.seated==='pouf'?1.01:player.crouch?1.10:1.64;
   player.eye+=(eyeHeight-player.eye)*Math.min(dt*10,1);
   camera.position.set(player.x,player.eye,player.z);
@@ -66143,10 +66264,11 @@ renderer.setAnimationLoop((tick)=>{
   if(walking()){
     updateHeld();
     if(tick>=nextInteractionTick){current=getInteraction();nextInteractionTick=tick+34;}
-    const hint=held
+    const hint=touchMode?(held?held.name:current?.label()??(tick<noticeUntil?notice:'')):held
       ? held.name+' · ЛКМ бросить · '+(player.seated?'F встать':'F положить')+(held===headphones?' · M плеер':'')
       : current ? 'E · '+current.label() : tick<noticeUntil ? notice : '';
     if(interactionHint.textContent!==hint)interactionHint.textContent=hint;
+    if(touchMode)updateTouchButtons();
   }
   if(!audio.paused)audio.volume=outputMode==='headphones'?.8:THREE.MathUtils.clamp(1-camera.position.distanceTo(soundAnchor)*.11,.2,.9);
   if(!video.paused)video.volume=THREE.MathUtils.clamp(.86-camera.position.distanceTo(tvAnchor)*.15,.12,.78);
