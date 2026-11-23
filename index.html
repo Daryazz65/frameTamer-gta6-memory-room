@@ -69,10 +69,10 @@
 </div>
 <section id="intro" class="overlay">
   <div class="card">
-    <p class="muted">Для Фрейм Теймера</p>
+    <p class="muted">Для Александра</p>
     <h1>Комната воспоминаний</h1>
     <p class="muted">В комнате можно разбить бутылку, бросив её, управлять стримом на компьютере, смотреть Покивета на телеке и слушать ИИ-треки.</p>
-    <p class="muted">Александр танцует, если включить музыку.</p>
+    <p class="muted">Освещением можно управлять. Наведи прицел на светильник и нажми E или кнопку «Действие» на телефоне.</p>
     <div id="desktop-help">
       <p><kbd>W A S D</kbd> идти · движение мыши поворачивает камеру · <kbd>E</kbd> взаимодействовать</p>
       <p><kbd>E</kbd> встать с кресла или бросить предмет · <kbd>F</kbd> положить · <kbd>C</kbd> / <kbd>Ctrl</kbd> присесть · <kbd>G</kbd> ударить · <kbd>M</kbd> плеер · <kbd>Q</kbd> следующий трек · <kbd>T</kbd> канал ТВ · <kbd>Tab</kbd> меню</p>
@@ -84,6 +84,7 @@
     </div>
     <p id="intro-launch" class="muted launch-help" hidden>Для захвата мыши и YouTube распакуй <a href="Комната воспоминаний 3D с YouTube.zip" download>архив комнаты</a> и запусти <code>Start-YouTube.cmd</code>.</p>
     <p id="startup" class="muted" role="status">Комната загружается…</p>
+    <p class="muted" style="margin:12px 0 0"><small>Tg: @d_zinina<br>Inst: @zinina___d&#x20;</small></p>
   </div>
 </section>
 <section id="panel" class="overlay" hidden>
@@ -64263,6 +64264,10 @@ function pigEarMesh(parent,side,tilt){
   mesh(shape,material,0,0,0,parent);
   tubing([[base.x-.034,base.y,base.z],[.144,.16,side*.104],[tip.x,tip.y,tip.z]],.006,pigSkin,parent,13);
 }
+const pigEyeWhite=color(0xfff3e6,.43);
+pigEyeWhite.emissive.setHex(0x42382f);
+pigEyeWhite.emissiveIntensity=.24;
+const pigIris=color(0x6b4933,.39),pigPupil=color(0x1b1111,.32);
 function sleepingPig(x,y,z,yaw,scale,side){
   const pig=group(x,y,z,yaw);
   pig.scale.setScalar(scale);
@@ -64273,8 +64278,24 @@ function sleepingPig(x,y,z,yaw,scale,side){
   coat.color.setHex(scale>.93?0xf2d9cc:scale<.85?0xe2c2ae:0xf7e6d4);
   const body=mesh(pigShapes.get(side),coat,0,0,0,pig);
   const head=subgroup(pig,.174,.057,side*.029,-side*.22);
+  const closedEyes=[],openEyes=[];
   for(const bank of [-1,1]){
-    tubing([[.131,-.019,bank*.030],[.096,-.021,bank*.042],[.063,-.024,bank*.056],[.034,-.020,bank*.067]],.0019,pigCrease,head,13);
+    closedEyes.push(tubing([[.131,-.019,bank*.030],[.096,-.021,bank*.042],
+      [.063,-.024,bank*.056],[.034,-.020,bank*.067]],.0019,pigCrease,head,13));
+    const eye=subgroup(pig,.225,.120,side*.025+bank*.057);
+    eye.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),
+      new THREE.Vector3(.54,.28,bank*.79).normalize());
+    oval(eye,pigCrease,0,0,.003,.031,.029,.017);
+    oval(eye,pigEyeWhite,0,0,.010,.027,.025,.017);
+    oval(eye,pigIris,bank*.005,.002,.025,.014,.015,.005);
+    oval(eye,pigPupil,bank*.005,.002,.029,.009,.010,.003);
+    oval(eye,pigEyeWhite,bank*.005-.003,.008,.032,.0035,.0035,.0015);
+    eye.traverse(object=>{
+      object.castShadow=false;
+      object.userData.noInteraction=true;
+    });
+    eye.visible=false;
+    openEyes.push(eye);
     pigEarMesh(pig,bank,bank===side?.016:-.033);
   }
   for(const [lx,lz,a] of [[-.138,.093,.48],[-.145,-.085,-.48],[.089,.089,-.64],[.063,-.106,.59]]){
@@ -64284,7 +64305,11 @@ function sleepingPig(x,y,z,yaw,scale,side){
     oval(hoof,pigHoof,.002,0,.007,.018,.012,.007);
   }
   tubing([[-.249,.131,-.021],[-.288,.151,-.033],[-.303,.172,-.010],[-.295,.179,.012],[-.279,.170,.017],[-.274,.159,.005]],.006,pigSkin,pig,22);
-  return {body,height:body.scale.y};
+  const center=new CANNON.Vec3(0,.113*scale,0);
+  const physics=new CANNON.Body({mass:.64,shape:new CANNON.Box(new CANNON.Vec3(.276*scale,.113*scale,.125*scale)),
+    linearDamping:.36,angularDamping:.54,sleepSpeedLimit:.21,collisionFilterGroup:4});
+  return {model:pig,body,closedEyes,openEyes,physics,center,offset:new CANNON.Vec3(),
+    home:pig.position.clone(),homeRotation:pig.quaternion.clone(),awake:false};
 }
 
 function woodCabinetAndDrawer(parent,height){
@@ -64811,6 +64836,11 @@ const sleepingPigs=[
   sleepingPig(bedX+.75,.545,bedZ+.169,2.82,.97,-1),
   sleepingPig(bedX+.345,.562,bedZ+.008,-1.87,.81,1),
 ];
+// Only the pigs use the raised collision surface over the bedspread.
+const pigBedSupport=new CANNON.Body({mass:0,collisionFilterGroup:2,collisionFilterMask:4,
+  shape:new CANNON.Box(new CANNON.Vec3(.775,.042,.465))});
+pigBedSupport.position.set(bedX+.28,.447,bedZ);
+world.addBody(pigBedSupport);
 const rugX=bedX-.13,rugZ=-1.375,rugWidth=2.30,rugDepth=.91;
 softBox(rugX,.015,rugZ,rugWidth,.03,rugDepth,.014,zebra,{yaw:-.055});
 const rugEdge=color(0xb2a897,.98);
@@ -66817,10 +66847,39 @@ softBox(.015,-.019,.126,.096,.087,.196,.028,sleeveMaterial,{parent:strikingHand}
 strikingHand.visible=false;
 strikingHand.traverse((object)=>{object.castShadow=false;object.receiveShadow=false;object.userData.noInteraction=true;});
 let punchStarted=-Infinity;
+function setPigAwake(pig,awake){
+  pig.awake=awake;
+  for(const eye of pig.closedEyes)eye.visible=!awake;
+  for(const eye of pig.openEyes)eye.visible=awake;
+}
+function startlePig(pig,forward){
+  const {model,body,physics,center,offset}=pig;
+  if(!pig.awake){
+    setPigAwake(pig,true);
+    body.scale.set(1,1,1);
+    physics.quaternion.copy(model.quaternion);
+    physics.position.copy(model.position);
+    physics.quaternion.vmult(center,offset);
+    physics.position.vadd(offset,physics.position);
+    world.addBody(physics);
+  }
+  const horizontal=Math.hypot(forward.x,forward.z);
+  const x=horizontal>.01?forward.x/horizontal:-Math.sin(player.yaw);
+  const z=horizontal>.01?forward.z/horizontal:-Math.cos(player.yaw);
+  physics.wakeUp();
+  physics.velocity.set(x*2.18,2.73,z*2.18);
+  physics.angularVelocity.set(-z*2.15,.85,x*2.15);
+}
 function punch(){
   if(held||player.seated||performance.now()-punchStarted<380)return;
   punchStarted=performance.now();
-  const hit=getInteraction(1.20)?.prop;
+  const target=getInteraction(1.70,true);
+  if(target?.pig){
+    camera.getWorldDirection(direction);
+    startlePig(target.pig,direction);
+    return;
+  }
+  const hit=target?.prop;
   if(!hit||hit.broken)return;
   if(hit.dormant){
     if(hit.model.parent!==scene)scene.attach(hit.model);
@@ -66852,13 +66911,20 @@ for(const item of props){
   });
 }
 for(const target of targets) pointerTargets.set(target.object,target);
+for(const pig of sleepingPigs){
+  const target={pig,label:()=>''};
+  pig.model.traverse(object=>{
+    if(object.isMesh&&!object.userData.noInteraction)pointerTargets.set(object,target);
+  });
+}
 scene.traverse((object)=>{if(object.isMesh&&object.visible&&!object.userData.noInteraction) renderMeshes.push(object);});
 
 // Keep individual meshes available to the interaction ray. Draw nearby fixed opaque
 // meshes with matching materials together, so lamps need fewer passes on phones.
 function batchStaticMeshes(){
-  const animated=new Set([tvScreen,streamPreview,...sleepingPigs.map(({body})=>body)]);
-  for(const object of [camera,hinge,rotatingCash,...props.map(({model})=>model),...lights.flatMap(({fixtures,controls})=>[...fixtures,...controls])]){
+  const animated=new Set([tvScreen,streamPreview]);
+  for(const object of [camera,hinge,rotatingCash,...sleepingPigs.map(({model})=>model),
+    ...props.map(({model})=>model),...lights.flatMap(({fixtures,controls})=>[...fixtures,...controls])]){
     object.traverse((child)=>animated.add(child));
   }
   const batches=new Map();
@@ -66907,7 +66973,7 @@ function batchStaticMeshes(){
 }
 batchStaticMeshes();
 
-function getInteraction(distance=2.45){
+function getInteraction(distance=2.45,punching=false){
   ray.setFromCamera(mouseCenter,camera);
   ray.far=distance;
   const hits=ray.intersectObjects(renderMeshes,false);
@@ -66915,6 +66981,7 @@ function getInteraction(distance=2.45){
     const target=pointerTargets.get(hit.object);
     if(held&&target?.prop===held) continue;
     if(!hit.object.visible) continue;
+    if(punching)return (target?.pig||hit.distance<=1.20)?target??null:null;
     return target?.label()?target:null;
   }
   return null;
@@ -67136,12 +67203,27 @@ renderer.setAnimationLoop((tick)=>{
     doorBody.aabbNeedsUpdate=true;
     shadowDirty=true;
   }
-  sleepingPigs.forEach(({body,height},index)=>{
-    const breath=Math.pow(.5+.5*Math.sin(t*1.65+index*1.42),1.4);
-    body.scale.set(1+.018*breath,height*(1+.078*breath),1+.032*breath);
-  });
   rotatingCash.rotation.y=(t*.46)%(Math.PI*2);
   world.step(1/60,dt,4);
+  sleepingPigs.forEach((pig,index)=>{
+    const {model,body,physics,center,offset}=pig;
+    if(!pig.awake){
+      const breath=Math.pow(.5+.5*Math.sin(t*1.65+index*1.42),1.4);
+      body.scale.set(1+.018*breath,1+.078*breath,1+.032*breath);
+      return;
+    }
+    if(physics.position.y<-.4){
+      world.removeBody(physics);
+      model.position.copy(pig.home);model.quaternion.copy(pig.homeRotation);
+      setPigAwake(pig,false);
+      shadowDirty=true;
+      return;
+    }
+    if(physics.sleepState!==CANNON.Body.SLEEPING)shadowDirty=true;
+    physics.quaternion.vmult(center,offset);
+    model.position.copy(physics.position).sub(offset);
+    model.quaternion.copy(physics.quaternion);
+  });
   updateShards(dt);
   for(const item of props){
     if(item===held){shadowDirty=true;continue;}
