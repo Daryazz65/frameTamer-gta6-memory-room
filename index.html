@@ -128,7 +128,7 @@
     <p id="notice" role="status"></p>
   </div>
 </section>
-<script id="saved" type="application/json">{"chat":["nightdrive: НУ ТЫ ЕБЕНЬ ФРАМА","pinkwaves: ебать стрипуха","CJLACK: О ДА КАКАЯ СОЧНАЯ","neoncat: щебень","tropic: ебень","savepoint: КИРА ВЗАДЕ","zebra: ЭТИ СВИНЬИ КУДА ТО БЕГУТ ЭТИ СВИНЬИ","midnight: АХАХАХАХАХАХАХАХАХАХАХАХАХ"],"donations":["nightdrive · 3333 ₽","motel.fm · 250 ₽","savepoint · 1000 ₽"],"tracks":[{"name":"kiotoW - Ебень Теймер.mp3","source":"room-audio/0.mp3"},{"name":"Свиньи бегут.mp3","source":"room-audio/1.mp3"},{"name":"Саша и звериный склад.mp3","source":"room-audio/2.mp3"},{"name":"Свиньи куда-то бегут","source":"room-audio/3.mp3"},{"name":"Les cochons filent","source":"room-audio/4.mp3"},{"name":"Frama not sleep","source":"room-audio/5.mp3"},{"name":"доппио — исповедь куропатки","source":"room-audio/6.mp3"},{"name":"Шесть звёзд","source":"room-audio/7.mp3"},{"name":"Шесть звёзд в GTA","source":"room-audio/8.mp3"},{"name":"Запись 3464","source":"room-audio/9.mp3"}],"channels":[{"name":"Губка Боб","id":"mloeAnP-mJ4","rate":1,"file":null},{"name":"Покивет","id":"b_VeVU5G8Bo","rate":0.5,"file":null}],"stream":{"live":true,"mic":true,"camera":true,"chat":true,"donate":true},"lights":{"Лента под потолком":true,"Бирюзовый светильник":true,"Потолочный плафон":false,"Овальная лампа на стиралке":true,"Лампочка у окна в коридоре":true,"Розовая вывеска":true,"Majestic":true,"Rockstar":true,"Неон полки":true,"Лента внутри холодильника":true,"Vice City":true,"Пачка денег у телевизора":true,"Студийные панели":true,"Компьютер":true},"channel":1,"volumes":{"music":3,"tv":1}}</script>
+<script id="saved" type="application/json">{"chat":["nightdrive: НУ ТЫ ЕБЕНЬ ФРАМА","pinkwaves: ебать стрипуха","CJLACK: О ДА КАКАЯ СОЧНАЯ","neoncat: щебень","tropic: ебень","savepoint: КИРА ВЗАДЕ","zebra: ЭТИ. СВИНЬИ. КУДА-ТО. БЕГУТ. ЭТИ. СВИНЬИ.","midnight: АХАХАХАХАХАХАХАХАХАХАХАХ","ELIKA: какой же ты ебень спермячий. ты Эрикой меня назвал","nightdrive: ЭТИ. СВИНЬИ. КУДА-ТО. БЕГУТ. ЭТИ. СВИНЬИ.","dariazzz25: сколько я пропустила?","kuropatka: сань в привате жду","CJLACK: АХАХАХАХХА","MICHELANGELOUX: привет привет","pinkwaves: ЭТИ. СВИНЬИ. КУДА-ТО. БЕГУТ. ЭТИ. СВИНЬИ. КУДА-ТО. БЕГУТ. ЭТИ. СВИНЬИ. КУДА-ТО. БЕГУТ."],"donations":["nightdrive · 3333 ₽","motel.fm · 250 ₽","savepoint · 1000 ₽"],"tracks":[{"name":"kiotoW - Ебень Теймер.mp3","source":"room-audio/0.mp3"},{"name":"Свиньи бегут.mp3","source":"room-audio/1.mp3"},{"name":"Саша и звериный склад.mp3","source":"room-audio/2.mp3"},{"name":"Свиньи куда-то бегут","source":"room-audio/3.mp3"},{"name":"Les cochons filent","source":"room-audio/4.mp3"},{"name":"Frama not sleep","source":"room-audio/5.mp3"},{"name":"доппио — исповедь куропатки","source":"room-audio/6.mp3"},{"name":"Шесть звёзд","source":"room-audio/7.mp3"},{"name":"Шесть звёзд в GTA","source":"room-audio/8.mp3"},{"name":"Запись 3464","source":"room-audio/9.mp3"}],"channels":[{"name":"Губка Боб","id":"mloeAnP-mJ4","rate":1,"file":null},{"name":"Покивет","id":"b_VeVU5G8Bo","rate":0.5,"file":null}],"stream":{"live":true,"mic":true,"camera":true,"chat":true,"donate":true},"lights":{"Лента под потолком":true,"Бирюзовый светильник":true,"Потолочный плафон":false,"Овальная лампа на стиралке":true,"Лампочка у окна в коридоре":true,"Розовая вывеска":true,"Majestic":true,"Rockstar":true,"Неон полки":true,"Лента внутри холодильника":true,"Vice City":true,"Пачка денег у телевизора":true,"Студийные панели":true,"Компьютер":true},"channel":1,"volumes":{"music":3,"tv":1}}</script>
 <script id="three-library">// The MIT License
 // 
 // Copyright © 2010-2023 three.js authors
@@ -64529,11 +64529,13 @@ const doorwayZ=-.76,doorwayWidth=.80;
 const doorNear=doorwayZ-doorwayWidth/2,doorFar=doorwayZ+doorwayWidth/2;
 const exitNear=.38,exitFar=1.18,exitPassageZ=(exitNear+exitFar)/2;
 const exitWidth=exitFar-exitNear,leftWallX=roomLeft-.095;
+// The dividing wall has green room-facing sides and terracotta corridor-facing sides.
+const corridorPartition=[greenWall,orangeWall,greenWall,orangeWall,orangeWall,orangeWall];
 for(const [from,to] of [[roomBack-.10,doorNear],[doorFar,exitNear],[exitFar,roomFront+.10]]){
-  box(leftWallX,1.44,(from+to)/2,.19,2.88,to-from,greenWall,{solid:true,walk:true});
+  box(leftWallX,1.44,(from+to)/2,.19,2.88,to-from,corridorPartition,{solid:true,walk:true});
 }
-box(leftWallX,2.646,doorwayZ,.19,.468,doorwayWidth,greenWall,{solid:true});
-box(leftWallX,2.646,exitPassageZ,.19,.468,exitWidth,greenWall,{solid:true});
+box(leftWallX,2.646,doorwayZ,.19,.468,doorwayWidth,corridorPartition,{solid:true});
+box(leftWallX,2.646,exitPassageZ,.19,.468,exitWidth,corridorPartition,{solid:true});
 for(const [z,side] of [[doorNear,-1],[doorFar,1],[exitNear,-1],[exitFar,1]]){
   box(roomLeft+.009,1.169,z+side*.035,.158,2.338,.086,wood);
   box(roomLeft-.090,1.168,z+side*.019,.039,2.336,.052,wood);
@@ -64607,7 +64609,7 @@ for(const x of [-.183,.183]){
   softBox(x*.27,-.044,.227,.029,.084,.022,.009,chrome,{parent:wallCabinet});
 }
 
-// Desk, white chair, seating and shelving.
+// Desk, gaming chair, seating and shelving.
 const deskYaw=32*Math.PI/180,deskWidth=2,deskDepth=.80,deskTop=.798;
 const deskCos=Math.cos(deskYaw),deskSin=Math.sin(deskYaw);
 const deskX=roomRight-deskWidth*.5*deskCos-deskDepth*.5*deskSin;
@@ -64626,74 +64628,119 @@ const [chairX,chairZ]=deskWorld(0,-.89);
 const chairYaw=Math.PI+deskYaw;
 const chair=group(chairX,0,chairZ,chairYaw);
 const chairVinyl=white.clone();
-chairVinyl.bumpScale=.0009;chairVinyl.roughness=.55;
-softBox(0,.46,-.014,.54,.114,.52,.055,chairVinyl,{parent:chair});
-softBox(0,.390,.025,.53,.077,.51,.038,plastic,{parent:chair});
+chairVinyl.color.setHex(0xe9dac6);
+chairVinyl.map=null;
+chairVinyl.bumpScale=.00022;chairVinyl.roughness=.61;
+const chairBolster=chairVinyl.clone();
+chairBolster.color.setHex(0xddcbb5);
+const chairLumbar=chairVinyl.clone();
+chairLumbar.color.setHex(0xe0cbb1);
+const chairTrim=color(0xbda78b,.67);
+const chairBase=color(0xcbbfae,.38);
+const chairArms=color(0x141318,.57);
+softBox(0,.457,-.037,.54,.114,.54,.050,chairVinyl,{parent:chair});
+softBox(0,.390,.008,.51,.068,.51,.030,plastic,{parent:chair});
 for(const x of [-.237,.237]){
-  const bolster=softBox(x,.507,-.009,.106,.092,.45,.043,chairVinyl,{parent:chair});
-  bolster.rotation.y=x<0?.09:-.09;
+  const bolster=softBox(x,.497,-.038,.114,.134,.47,.052,chairBolster,{parent:chair});
+  bolster.rotation.y=x<0?.085:-.085;
 }
 box(chairX,.47,chairZ,.65,.17,.66,white,{yaw:chairYaw,solid:true,walk:true}).visible=false;
 function tubing(points,radius,material,parent,segments=24){
   const curve=new THREE.CatmullRomCurve3(points.map(([x,y,z])=>new THREE.Vector3(x,y,z)));
   return mesh(new THREE.TubeGeometry(curve,segments,radius,7),material,0,0,0,parent);
 }
-const chairFrame=color(0xe4e0db,.36);
-const chairMetal=new THREE.MeshStandardMaterial({color:0xc9cbd1,metalness:.64,roughness:.24});
-const weave=texture(256,256,(ctx,w,h)=>{
-  ctx.fillStyle='#0d0d0d';ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='#f5f5f5';
-  for(let i=0;i<48;i++){
-    ctx.fillRect(i*w/48,0,2.4,h);
-    ctx.fillRect(0,i*h/48,w,2.2);
+const backOutline=new THREE.Shape();
+backOutline.moveTo(0,.481);
+backOutline.bezierCurveTo(.247,.481,.271,.498,.264,.597);
+backOutline.bezierCurveTo(.259,.746,.213,.818,.235,.980);
+backOutline.bezierCurveTo(.257,1.114,.209,1.181,.172,1.267);
+backOutline.bezierCurveTo(.143,1.332,.151,1.436,.113,1.467);
+backOutline.quadraticCurveTo(.087,1.493,0,1.493);
+backOutline.quadraticCurveTo(-.087,1.493,-.113,1.467);
+backOutline.bezierCurveTo(-.151,1.436,-.143,1.332,-.172,1.267);
+backOutline.bezierCurveTo(-.209,1.181,-.257,1.114,-.235,.980);
+backOutline.bezierCurveTo(-.213,.818,-.259,.746,-.264,.597);
+backOutline.bezierCurveTo(-.271,.498,-.247,.481,0,.481);
+const backDepth=(x,y)=>.157+(y-.481)*.126-.36*x*x;
+for(const side of [-1,1]){
+  const vent=new THREE.Path();
+  vent.moveTo(side*.034,1.220);
+  vent.bezierCurveTo(side*.032,1.185,side*.103,1.184,side*.124,1.215);
+  vent.bezierCurveTo(side*.153,1.260,side*.133,1.277,side*.106,1.272);
+  vent.bezierCurveTo(side*.069,1.268,side*.027,1.249,side*.034,1.220);
+  backOutline.holes.push(vent);
+}
+const backGeometry=new THREE.ExtrudeGeometry(backOutline,{
+  depth:.047,bevelEnabled:true,bevelThickness:.029,bevelSize:.022,bevelSegments:5,curveSegments:14
+});
+const backVertices=backGeometry.attributes.position;
+for(let i=0;i<backVertices.count;i++){
+  backVertices.setZ(i,backVertices.getZ(i)+backDepth(backVertices.getX(i),backVertices.getY(i)));
+}
+backGeometry.computeVertexNormals();
+mesh(backGeometry,chairVinyl,0,0,0,chair).name='Мягкая спинка кресла';
+for(const side of [-1,1]){
+  const bolsterProfile=[[0,.49],[.024,.53],[.039,.60],[.038,.71],[.028,.86],
+    [.031,1.00],[.036,1.10],[.024,1.17],[0,1.215]];
+  const bolsterCurve=new THREE.SplineCurve(bolsterProfile.map(([radius,y])=>new THREE.Vector2(radius,y)));
+  const bolsterGeometry=new THREE.LatheGeometry(bolsterCurve.getPoints(42),20);
+  const bolsterVertices=bolsterGeometry.attributes.position;
+  for(let i=0;i<bolsterVertices.count;i++){
+    const y=bolsterVertices.getY(i);
+    const waist=Math.exp(-Math.pow((y-.87)/.16,2));
+    const x=side*(.215-.030*waist-.16*Math.max(0,y-1.05))+bolsterVertices.getX(i);
+    bolsterVertices.setXYZ(i,x,y,backDepth(x,y)-.004+bolsterVertices.getZ(i)*1.45);
+  }
+  bolsterGeometry.computeVertexNormals();
+  mesh(bolsterGeometry,chairBolster,0,0,0,chair);
+  const seam=[[.155,.595],[.147,.740],[.151,.895],[.161,1.021],[.134,1.148]]
+    .map(([x,y])=>[side*x,y,backDepth(x,y)-.001]);
+  tubing(seam,.0015,chairTrim,chair,22);
+}
+const lumbar=softBox(0,.650,.090,.347,.157,.135,.052,chairLumbar,{parent:chair});
+lumbar.rotation.x=.10;
+const furColor=color(0xe8b4c1,.98);
+let furSeed=231;
+const furRandom=()=>((furSeed=(1664525*furSeed+1013904223)>>>0)/4294967296);
+const furTexture=texture(256,256,(ctx,w,h)=>{
+  ctx.fillStyle='#e9cbd3';ctx.fillRect(0,0,w,h);
+  for(let i=0;i<5100;i++){
+    const x=furRandom()*w,y=furRandom()*h,length=3+furRandom()*15;
+    ctx.strokeStyle=i%3===0?'#996b7b2c':i%3===1?'#fff4f584':'#d394aa45';
+    ctx.lineWidth=.45+furRandom()*.85;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+2,y+length*.32,x-2,y+length);ctx.stroke();
   }
 }).map;
-const chairMesh=new THREE.MeshStandardMaterial({color:0x828083,roughness:.76,
-  alphaMap:weave,alphaTest:.36,side:THREE.DoubleSide});
-function chairPanel(y,z,outline,radius){
-  const panel=new THREE.Group();
-  chair.add(panel);
-  panel.position.set(0,y,z);
-  const shape=new THREE.PlaneGeometry(2,2,30,24);
-  const vertices=shape.attributes.position;
-  for(let i=0;i<vertices.count;i++){
-    vertices.setXYZ(i,...outline(vertices.getX(i),vertices.getY(i)).toArray());
+furColor.map=furTexture;furColor.bumpMap=furTexture;furColor.bumpScale=.006;
+const headrest=softBox(0,1.364,.250,.334,.157,.104,.043,furColor,{parent:chair});
+headrest.name='Розовый меховой подголовник';
+headrest.rotation.x=.13;
+const headrestVertices=headrest.geometry.attributes.position;
+for(let i=0;i<headrestVertices.count;i++){
+  const x=headrestVertices.getX(i),y=headrestVertices.getY(i);
+  headrestVertices.setY(i,y*(.86+.22*Math.pow(x/.167,2)));
+}
+headrest.geometry.computeVertexNormals();
+const fibers=[],fiberColors=[];
+const furRoot=new THREE.Color(0xbd899a),furTip=new THREE.Color(0xf4ccd6);
+for(let i=0;i<1550;i++){
+  const x=(furRandom()-.5)*.308;
+  const y=(furRandom()-.5)*(.120-.018*Math.abs(x/.154));
+  const z=-.054+.017*Math.pow(x/.154,4)+.006*Math.pow(y/.060,4);
+  const length=.005+furRandom()*.017,lean=(furRandom()-.47)*length;
+  const middle=[x+lean*.42,y-length*.52,z-length*.24];
+  fibers.push(x,y,z,...middle,...middle,x+lean,y-length,z-length*.40);
+  const shade=.94+furRandom()*.13;
+  for(const tint of [furRoot,furTip,furTip,furTip]){
+    fiberColors.push(tint.r*shade,tint.g*shade,tint.b*shade);
   }
-  shape.computeVertexNormals();
-  const net=mesh(shape,chairMesh,0,0,0,panel);
-  const rim=[];
-  for(let i=0;i<16;i++)rim.push(outline(-1+i/8,-1));
-  for(let i=0;i<16;i++)rim.push(outline(1,-1+i/8));
-  for(let i=0;i<16;i++)rim.push(outline(1-i/8,1));
-  for(let i=0;i<16;i++)rim.push(outline(-1,1-i/8));
-  mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rim,true),96,radius,10,true),chairFrame,0,0,0,panel);
-  return net;
 }
-const seatBack=chairPanel(.94,.205,(u,v)=>{
-  const width=.244+.025*v-.026*Math.exp(-Math.pow((v+.30)/.44,2));
-  return new THREE.Vector3(u*width*Math.sqrt(1-.12*v*v),v*.349*Math.sqrt(1-.105*u*u),
-    .053*v+.040*v*v+.031*u*u);
-},.018);
-chairPanel(1.432,.211,(u,v)=>new THREE.Vector3(
-  .188*u*Math.sqrt(1-.29*v*v),.085*v*Math.sqrt(1-.29*u*u),.028*u*u+.013*v
-),.012);
-tubing([[0,1.232,.291],[0,1.332,.309],[0,1.416,.256]],.017,chairFrame,chair,16);
-tubing([[-.21,1.229,.300],[0,1.235,.316],[.21,1.229,.300]],.014,chairMetal,chair,18);
-for(const side of [-1,1]){
-  tubing([[side*.19,1.227,.301],[side*.185,1.06,.305],[side*.157,.852,.339],
-    [side*.167,.686,.344],[side*.190,.547,.274],[side*.187,.487,.126]],.017,chairMetal,chair);
-}
-tubing([[-.185,.559,.276],[0,.519,.304],[.185,.559,.276]],.015,chairMetal,chair,18);
-const lumbarFrame=color(0xcac3ba,.48);
-for(const y of [.767,.845]){
-  tubing([[-.163,y+.02,.255],[0,y,.301],[.163,y+.02,.255]],.011,lumbarFrame,chair,16);
-}
-for(let i=-5;i<=5;i++){
-  const x=i*.026;
-  const z=.300-.044*Math.pow(x/.156,2);
-  const y=.770+.02*Math.pow(x/.156,2);
-  tubing([[x,y,z],[x,y+.036,z+.006],[x,y+.077,z]],.0045,lumbarFrame,chair,8);
-}
+const furGeometry=new THREE.BufferGeometry();
+furGeometry.setAttribute('position',new THREE.Float32BufferAttribute(fibers,3));
+furGeometry.setAttribute('color',new THREE.Float32BufferAttribute(fiberColors,3));
+headrest.add(new THREE.LineSegments(furGeometry,new THREE.LineBasicMaterial({
+  vertexColors:true,transparent:true,opacity:.60,depthWrite:false
+})));
 const fleeceMap=texture(128,128,(ctx,w,h)=>{
   ctx.fillStyle='#74656e';ctx.fillRect(0,0,w,h);
   for(let i=0;i<1750;i++){
@@ -64701,16 +64748,22 @@ const fleeceMap=texture(128,128,(ctx,w,h)=>{
     ctx.fillRect(random()*w,random()*h,.6+random()*2.6,1+random()*2.5);
   }
 }).map;
-round(0,.22,0,.058,.36,chrome,chair);
+round(0,.220,0,.052,.317,chairBase,chair);
+round(0,.313,0,.037,.137,chrome,chair);
 for(let i=0;i<5;i++){
   const a=i*2*Math.PI/5;
-  softBox(Math.sin(a)*.16,.087,Math.cos(a)*.16,.072,.052,.355,.024,black,{yaw:a,parent:chair});
-  const wheel=round(Math.sin(a)*.31,.051,Math.cos(a)*.31,.048,.052,black,chair);
-  wheel.rotation.set(0,a,Math.PI/2);
+  const leg=subgroup(chair,0,0,0);
+  leg.rotation.y=a;
+  softBox(0,.088,.166,.080,.058,.366,.026,chairBase,{parent:leg}).rotation.x=.10;
+  round(0,.047,.322,.043,.052,chairArms,leg).rotation.z=Math.PI/2;
+  for(const x of [-.027,.027]){
+    round(x,.047,.322,.028,.007,chairBase,leg).rotation.z=Math.PI/2;
+  }
 }
 for(const x of [-.354,.354]){
-  softBox(x,.657,.017,.099,.069,.39,.033,black,{parent:chair});
-  softBox(x,.534,.098,.055,.191,.077,.022,black,{parent:chair});
+  softBox(x,.671,-.015,.105,.068,.348,.032,chairArms,{parent:chair});
+  softBox(x,.532,.098,.055,.242,.075,.020,chairArms,{parent:chair});
+  softBox(x*.93,.417,.098,.101,.048,.091,.015,chairArms,{parent:chair});
 }
 chair.traverse((item)=>{if(item.isMesh)action(item,()=>player.seated?'':'сесть за компьютер',sitAtDesk);});
 const bedX=-1.365,bedZ=-2.58,bedLength=2.24;
@@ -64767,10 +64820,10 @@ for(let i=0;i<38;i++){
   tuft.rotation.y=(i%5-2)*.13;
 }
 const smallShelfX=-2.525;
-const shelfFabric=leopard.clone();
-shelfFabric.color.setHex(0xc5ae97);
+const bedShelfFinish=color(0x151416,.75);
+bedShelfFinish.bumpMap=wood.bumpMap;bedShelfFinish.bumpScale=.001;
 for(const y of [1.307,1.805]){
-  softBox(smallShelfX,y,-3.031,1.14,.052,.275,.01,shelfFabric,{solid:true});
+  softBox(smallShelfX,y,-3.031,1.14,.052,.275,.01,bedShelfFinish,{solid:true});
 }
 for(const [x,h,hex] of [[-.235,.236,0x36281c],[-.117,.267,0x233e34]]){
   const bottle=glassBottle(scene,smallShelfX+x,1.832,-3.013,h/.278,color(hex,.27));
@@ -64835,17 +64888,19 @@ sideDesk.add(sketchbook);
 sketchbook.position.set(.39,deskShelfTop,.23);
 sketchbook.rotation.y=-.21;
 softBox(0,.016,0,.29,.028,.215,.008,cream,{parent:sketchbook});
-for(const y of [.003,.031])box(0,y,0,.30,.005,.225,color(0x713f57),{parent:sketchbook});
+const sketchbookCover=color(0x3b2335);
+for(const y of [.003,.031])box(0,y,0,.30,.005,.225,sketchbookCover,{parent:sketchbook});
 portable('Альбом для набросков',sketchbook);
-for(const [x,z,angle,paint] of [[.65,.352,.71,0xd89142],[.73,.275,1.26,0x429884]]){
-  const pencil=new THREE.Group();
-  pencil.position.set(x,deskShelfTop+.008,z);
-  pencil.rotation.set(0,angle,Math.PI/2,'YXZ');
-  sideDesk.add(pencil);
-  round(0,0,0,.0075,.136,color(paint,.64),pencil);
-  round(0,.08,0,.0075,.024,color(0xe4b685,.84),pencil,.0015);
-  round(0,-.075,0,.0077,.014,cream,pencil);
-  portable('Карандаш',pencil);
+for(const [x,z,angle,paint] of [[.65,.352,.71,0x2e3148],[.73,.275,1.26,0x254034]]){
+  const pen=subgroup(sideDesk,x,deskShelfTop+.008,z);
+  pen.rotation.set(0,angle,Math.PI/2,'YXZ');
+  const barrel=color(paint,.61);
+  round(0,0,0,.0075,.137,barrel,pen);
+  round(0,.075,0,.0075,.015,barrel,pen,.003);
+  round(0,.084,0,.003,.006,chrome,pen,.0012);
+  round(0,-.071,0,.008,.021,barrel,pen);
+  softBox(.008,-.051,0,.004,.038,.006,.002,barrel,{parent:pen});
+  portable('Ручка',pen);
 }
 const tapeRoll=mesh(new THREE.TorusGeometry(.046,.015,10,32),color(0xbb945e,.86),-.36,deskShelfTop+.017,.31,sideDesk);
 tapeRoll.rotation.x=-Math.PI/2;
@@ -64901,11 +64956,11 @@ round(0,.082,.058,.055,.078,chrome,oldCamera).rotation.x=Math.PI/2;
 round(0,.082,.100,.037,.012,plastic,oldCamera).rotation.x=Math.PI/2;
 softBox(-.066,.166,-.021,.052,.022,.036,.005,chrome,{parent:oldCamera});
 portable('Фотоаппарат',oldCamera);
-for(const [i,[paint,tilt]] of [[0x85516e,-.08],[0x507d76,.08],[0xc08a58,.24]].entries()){
+for(const [i,[paint,tilt]] of [[0x432439,-.08],[0x233e42,.08],[0x493023,.24]].entries()){
   const booklet=subgroup(sideShelf,-.22+i*.061,shelfBase+.117,.010);
   booklet.rotation.z=tilt;
   softBox(0,0,0,.044,.235,.172,.005,color(paint),{parent:booklet});
-  box(0,.051,.088,.025,.052,.004,cream,{parent:booklet});
+  box(0,.051,.088,.025,.052,.004,color(0x50474c),{parent:booklet});
   portable('Блокнот',booklet);
 }
 for(const [x,paint,yaw] of [[.40,0x4e6e87,-.25],[.62,0xa85e70,.25]]){
@@ -66029,6 +66084,38 @@ $('music-volume').onchange=(event)=>{
   updateVolume('music',true);
 };
 
+const chatLayouts=new Map();
+function drawChat(ctx,{x,y,width,bottom,lineHeight,rowHeight,step,scroll,colors}){
+  let layout=chatLayouts.get(ctx);
+  if(layout?.messages!==chat){
+    const rows=chat.map(message=>{
+      if(ctx.measureText(message).width<=width)return [message];
+      const lines=[];
+      let line='';
+      for(const word of message.split(/\s+/)){
+        const next=line?line+' '+word:word;
+        if(line&&ctx.measureText(next).width>width){
+          lines.push(line);
+          line=word;
+        }else line=next;
+      }
+      lines.push(line);
+      return lines;
+    });
+    const advances=rows.map(lines=>Math.max(rowHeight,lines.length*lineHeight+8));
+    layout={messages:chat,rows,advances};
+    chatLayouts.set(ctx,layout);
+  }
+  const start=Math.floor(step);
+  if(scroll)y-=(step-start)*layout.advances[start%chat.length];
+  for(let i=0;y<bottom;i++){
+    const index=(start+i)%chat.length;
+    ctx.fillStyle=colors[i%2];
+    layout.rows[index].forEach((line,j)=>ctx.fillText(line,x,y+j*lineHeight,width));
+    y+=layout.advances[index];
+  }
+}
+
 function renderPc(t){
   const c=pcTexture.ctx;
   if(!towerRgb.on){
@@ -66049,11 +66136,8 @@ function renderPc(t){
   c.save();c.beginPath();c.rect(707,138,277,310);c.clip();
   c.font='19px system-ui';
   if(stream.live&&stream.chat&&chat.length){
-    const row=53, step=t/3.6, start=Math.floor(step);
-    for(let i=0;i<8;i++){
-      const line=chat[(start+i)%chat.length];c.fillStyle=i%2?'#f0c9ea':'#87d6d1';
-      c.fillText(line,712,160+i*row-(step%1)*row,266);
-    }
+    drawChat(c,{x:712,y:160,width:266,bottom:457,lineHeight:22,rowHeight:53,
+      step:t/3.6,scroll:true,colors:['#87d6d1','#f0c9ea']});
   }
   c.restore();
   if(donations.length&&((stream.live&&stream.donate)||performance.now()<donationPreviewUntil)){
@@ -66081,11 +66165,10 @@ function renderSideScreens(){
   c.fillStyle='#e4c7e9';c.font='bold 39px system-ui';c.fillText('Чат трансляции',28,60);
   c.font='25px system-ui';
   if(stream.live&&stream.chat&&chat.length){
-    const index=Math.floor(streamTime/3.6);
-    for(let i=0;i<7;i++){
-      c.fillStyle=i%2?'#d6afd9':'#90c5ca';
-      c.fillText(chat[(index+i)%chat.length],30,115+i*43,710);
-    }
+    c.save();c.beginPath();c.rect(28,86,712,331);c.clip();
+    drawChat(c,{x:30,y:115,width:710,bottom:424,lineHeight:29,rowHeight:43,
+      step:streamTime/3.6,scroll:false,colors:['#90c5ca','#d6afd9']});
+    c.restore();
   }else{
     c.fillStyle='#a38d9e';c.fillText(stream.chat?'Ожидание эфира':'Чат на паузе',29,121);
   }
