@@ -66114,6 +66114,7 @@ $('music-volume').onchange=(event)=>{
   updateVolume('music',true);
 };
 
+const chatMessageSeconds=1.8;
 const chatLayouts=new Map();
 function drawChat(ctx,{x,y,width,bottom,lineHeight,rowHeight,step,scroll,colors}){
   let layout=chatLayouts.get(ctx);
@@ -66167,7 +66168,7 @@ function renderPc(t){
   c.font='19px system-ui';
   if(stream.live&&stream.chat&&chat.length){
     drawChat(c,{x:712,y:160,width:266,bottom:457,lineHeight:22,rowHeight:53,
-      step:t/3.6,scroll:true,colors:['#87d6d1','#f0c9ea']});
+      step:t/chatMessageSeconds,scroll:true,colors:['#87d6d1','#f0c9ea']});
   }
   c.restore();
   if(donations.length&&((stream.live&&stream.donate)||performance.now()<donationPreviewUntil)){
@@ -66181,7 +66182,8 @@ function renderPc(t){
 }
 
 function renderSideScreens(){
-  const key=[towerRgb.on,stream.live,stream.chat,Math.floor(streamTime/3.6),trackIndex,tracks.length,monitorRevision].join('|');
+  const chatStep=streamTime/chatMessageSeconds;
+  const key=[towerRgb.on,stream.live,stream.chat,Math.floor(chatStep),trackIndex,tracks.length,monitorRevision].join('|');
   if(key===lastSideScreens)return;
   lastSideScreens=key;
   const {ctx:c,map:chatMap}=sideChatTexture;
@@ -66197,7 +66199,7 @@ function renderSideScreens(){
   if(stream.live&&stream.chat&&chat.length){
     c.save();c.beginPath();c.rect(28,86,712,331);c.clip();
     drawChat(c,{x:30,y:115,width:710,bottom:424,lineHeight:29,rowHeight:43,
-      step:streamTime/3.6,scroll:false,colors:['#90c5ca','#d6afd9']});
+      step:chatStep,scroll:false,colors:['#90c5ca','#d6afd9']});
     c.restore();
   }else{
     c.fillStyle='#a38d9e';c.fillText(stream.chat?'Ожидание эфира':'Чат на паузе',29,121);
