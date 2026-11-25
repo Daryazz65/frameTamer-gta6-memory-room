@@ -64353,18 +64353,18 @@ function stoolWithBag(x,z){
   const bag=subgroup(stool,.018,.56,-.024,1.64);
   const check=texture(512,256,(ctx,w,h)=>{
     for(let row=0;row<10;row++)for(let column=0;column<26;column++){
-      ctx.fillStyle=(row+column)%2?'#2b2929':'#1c1b1e';
+      ctx.fillStyle=(row+column)%2?'#efeeeb':'#e3e2df';
       ctx.fillRect(column*w/26,row*h/10,Math.ceil(w/26),Math.ceil(h/10));
     }
     for(let n=0;n<5500;n++){
-      ctx.fillStyle=n%2?'#ffffff14':'#00000020';
+      ctx.fillStyle=n%2?'#ffffff58':'#766c6020';
       ctx.fillRect((n*127.67)%w,(n*47.35)%h,1.6,.8);
     }
   }).map;
   const shell=new THREE.MeshStandardMaterial({map:check,bumpMap:check,bumpScale:.0017,roughness:.69,side:THREE.DoubleSide});
-  const lining=color(0x171419,.91);
+  const lining=color(0xc7c1b8,.91);
   lining.side=THREE.DoubleSide;
-  const leather=color(0x252024,.46);
+  const leather=color(0xeae5df,.46);
   const rimPoints=[];
   const columns=60;
   function bagPoint(angle,width,depth,y){
@@ -65027,7 +65027,42 @@ const tvStand=group(tvX,0,tvZ,tvYaw);
 const tvDrawer=woodCabinetAndDrawer(tvStand,tvStandHeight);
 const trayPosition=tvDrawer.localToWorld(new THREE.Vector3(0,-.029,.071));
 bodyBox(trayPosition.x,trayPosition.y,trayPosition.z,.611,.028,.345,tvYaw);
-const stool=stoolWithBag(-2.64,.955);
+const stool=stoolWithBag(-2.69,.79);
+const tvChair=group(-2.43,0,1.32,-.15);
+const chairFabric=color(0xf3eee7,.86),chairFeet=color(0xe2ddd7,.55);
+chairFabric.bumpMap=white.bumpMap;chairFabric.bumpScale=.0005;
+softBox(0,.442,-.012,.465,.091,.427,.042,chairFabric,{parent:tvChair});
+softBox(0,.397,.006,.418,.037,.36,.017,chairFeet,{parent:tvChair});
+const backrest=new THREE.Shape();
+backrest.moveTo(-.215,.447);
+backrest.bezierCurveTo(-.210,.560,-.243,.711,-.205,.800);
+backrest.bezierCurveTo(-.173,.893,-.107,.907,0,.907);
+backrest.bezierCurveTo(.107,.907,.173,.893,.205,.800);
+backrest.bezierCurveTo(.243,.711,.210,.560,.215,.447);
+backrest.lineTo(.143,.447);
+backrest.bezierCurveTo(.138,.538,.165,.654,.137,.718);
+backrest.bezierCurveTo(.116,.765,.066,.778,0,.778);
+backrest.bezierCurveTo(-.066,.778,-.116,.765,-.137,.718);
+backrest.bezierCurveTo(-.165,.654,-.138,.538,-.143,.447);
+backrest.closePath();
+const tvBack=new THREE.ExtrudeGeometry(backrest,{depth:.042,bevelSize:.018,
+  bevelThickness:.018,bevelSegments:4,curveSegments:18});
+const tvBackVertices=tvBack.attributes.position;
+for(let i=0;i<tvBackVertices.count;i++){
+  const y=tvBackVertices.getY(i);
+  tvBackVertices.setZ(i,tvBackVertices.getZ(i)+.148+(y-.447)*.17);
+}
+tvBack.computeVertexNormals();
+mesh(tvBack,chairFabric,0,0,0,tvChair);
+for(const x of [-1,1])for(const z of [-1,1]){
+  const foot=new THREE.Vector3(.207*x,.018,.188*z);
+  const mount=new THREE.Vector3(.153*x,.400,.130*z);
+  const leg=round(0,0,0,.015,foot.distanceTo(mount),chairFeet,tvChair,.022);
+  leg.position.copy(foot).lerp(mount,.5);
+  leg.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),mount.sub(foot).normalize());
+}
+bodyBox(tvChair.position.x,.42,tvChair.position.z,.47,.10,.44,tvChair.rotation.y);
+blockers.push({x:tvChair.position.x,z:tvChair.position.z,w:.47,d:.44,yaw:tvChair.rotation.y});
 
 const contactMap=texture(128,128,(ctx,w,h)=>{
   const gradient=ctx.createRadialGradient(w/2,h/2,11,w/2,h/2,w/2);
@@ -65046,6 +65081,7 @@ function contact(x,z,w,d,opacity,yaw=0){
 }
 contact(bedX,bedZ,2.68,1.29,.61);
 contact(stool.position.x,stool.position.z,.65,.64,.50);
+contact(tvChair.position.x,tvChair.position.z,.55,.56,.40,tvChair.rotation.y);
 contact(chairX,chairZ,1.11,.88,.51);
 contact(tvX,tvZ,.925,.91,.72,tvYaw);
 contact(deskX,deskZ,2.16,1.06,.39,deskYaw);
@@ -65171,14 +65207,91 @@ const grovePaint=mesh(new THREE.PlaneGeometry(1.46,1.195),new THREE.MeshStandard
   map:groveMap,transparent:true,depthWrite:false,roughness:1,polygonOffset:true,polygonOffsetFactor:-1
 }),-1.063,1.797,roomBack+.019);
 grovePaint.castShadow=false;grovePaint.renderOrder=1;
-wallInk(tagImage,-1.075,2.524,.80,.342);
+// Wall positions are measured from the shelves and the poster in the reference.
+const bedWallTags=[
+  ['ПИВКО',-3.31,2.62,.63,.23,'#252021',4.0,-.11],
+  ['ЮЛЯ',-2.62,2.71,.77,.33,'#1c161c',7.7,-.06],
+  ['DOK',-1.57,2.80,1.02,.34,'#101719',7.4,-.07],
+  ['SaFonich',-1.53,2.43,.59,.11,'#345152',3.6,-.052],
+  ['TOKI TOKI',-3.30,1.94,.28,.45,'#302329',3.9,-.025],
+  ['Boro Bober',-2.55,1.65,.66,.16,'#292327',4.4,.026],
+  ['ЧЕЛ',-2.82,1.22,.146,.49,'#282526',4.2,-.07],
+  ['МАША',-1.91,1.21,.132,.43,'#242b29',4.0,.04],
+  ['ИНВЕСТОР',-1.75,.975,1.37,.23,'#251e22',5.6,.08],
+];
+const tagLetters={
+  П:'M8 92 L12 16 55 13 59 92', И:'M8 17 L10 89 55 14 54 91',
+  В:'M11 92 L10 18 Q58 3 54 36 Q53 49 14 53 Q63 47 58 74 Q54 92 11 92',
+  К:'M12 15 L11 93 M59 15 L13 55 62 95', О:'M42 11 C11 6 2 38 8 68 C14 99 45 103 58 75 C72 46 66 15 42 11 Z',
+  Ю:'M9 9 L8 94 M9 51 L31 48 M46 12 C73 6 75 59 62 82 C44 106 29 87 30 54 C30 28 33 17 46 12 Z',
+  Л:'M6 93 C20 81 19 15 35 12 Q48 7 59 92', Я:'M57 94 L57 12 C12 3 2 39 19 49 Q31 61 57 52 M40 54 L7 94',
+  D:'M9 92 L12 14 C40 7 68 20 62 50 Q58 77 9 92 Z M12 38 C36 29 54 44 14 64',
+  O:'M37 15 C12 18 0 52 11 72 C23 94 61 83 64 55 C70 31 57 10 37 15 Z M35 53 Q36 44 42 45 Q46 50 35 53',
+  K:'M13 7 L9 94 M62 8 L11 55 C44 39 55 48 59 88',
+  T:'M3 15 Q33 8 65 12 M33 13 L29 94', I:'M19 13 L45 11 M32 13 L30 91 M13 91 L48 89',
+  Ч:'M12 11 Q3 60 45 55 L59 47 M57 8 L54 94', Е:'M60 14 L13 15 9 93 59 96 M11 51 L50 55',
+  М:'M6 93 L13 13 36 62 56 11 64 92', А:'M5 94 Q18 53 33 10 Q42 7 63 95 M16 66 L53 66',
+  Ш:'M7 15 L7 89 63 90 64 14 M35 88 L35 21', Н:'M9 16 L10 90 M59 11 L58 92 M10 53 L57 49',
+  С:'M61 23 C26 -4 7 30 10 62 Q15 105 61 86', Т:'M4 15 L65 11 M36 15 L30 94',
+  Р:'M12 94 L13 15 C48 1 68 20 58 44 Q46 61 13 57',
+  B:'M12 92 L14 12 Q53 8 52 33 Q51 50 15 50 Q64 47 59 76 Q55 94 12 92',
+  S:'M60 24 C45 4 8 13 12 36 C15 51 62 48 59 72 Q56 102 7 83', F:'M12 94 L11 12 61 10 M13 48 L50 47',
+  o:'M35 43 C9 40 4 78 18 89 C37 104 62 87 58 65 Q54 44 35 43 Z',
+  r:'M12 93 L13 46 M14 66 Q32 40 57 48', b:'M12 16 L12 90 Q9 51 36 48 C75 45 63 99 12 90',
+  e:'M10 68 Q65 65 54 50 C37 31 10 49 10 70 Q12 103 57 87', a:'M49 52 C12 30 0 82 24 91 Q54 101 53 49 L55 94',
+  n:'M9 92 L10 46 M11 65 Q48 31 53 53 Q60 69 60 92', i:'M35 51 L32 92 M34 30 L35 28',
+  c:'M57 51 Q18 27 9 67 Q5 101 57 89', h:'M10 92 L12 16 M10 69 Q51 29 58 57 L59 94'
+};
+const tagWallLeft=-3.38,tagWallTop=2.86,tagWallWidth=3.20,tagWallHeight=2.17;
+const bedTagMap=texture(1024,704,(ctx,w,h)=>{
+  ctx.scale(w/tagWallWidth,h/tagWallHeight);
+  const glyphs=new Map();
+  function tagLine(label,x,y,width,height,ink,weight,angle){
+    ctx.save();
+    ctx.translate(x-tagWallLeft,tagWallTop-y);ctx.rotate(angle);
+    ctx.scale(width/(label.length*72),height/100);
+    ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=ink;
+    for(const [i,letter] of [...label].entries()){
+      if(letter===' ')continue;
+      if(!glyphs.has(letter))glyphs.set(letter,new Path2D(tagLetters[letter]));
+      ctx.save();ctx.translate(i*72,(i%3-1)*2.4);ctx.rotate((i%3-1)*.053);
+      ctx.lineWidth=weight+((i*3)%5)*.49;
+      ctx.stroke(glyphs.get(letter));
+      if(label==='ЮЛЯ'||label==='DOK'){ctx.globalAlpha=.18;ctx.lineWidth+=3;ctx.stroke(glyphs.get(letter));}
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  for(const [label,x,y,width,height,ink,weight,angle] of bedWallTags){
+    if(label==='ЧЕЛ'||label==='МАША'){
+      [...label].forEach((letter,i)=>tagLine(letter,x+(i%2)*.012,y-height*i/label.length,
+        width,height/label.length,ink,weight,angle));
+    }else if(label==='TOKI TOKI'){
+      tagLine('TOKI',x,y,width,.105,ink,weight,angle);
+      [...'OKI'].forEach((letter,i)=>tagLine(letter,x,y-.112*(i+1),.076,.097,ink,weight,angle));
+    }else tagLine(label,x,y,width,height,ink,weight,angle);
+  }
+  ctx.lineCap='round';ctx.strokeStyle='#34515288';ctx.lineWidth=.010;
+  ctx.beginPath();ctx.ellipse(2.17,.489,.33,.079,-.065,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#391f23aa';ctx.lineWidth=.012;
+  ctx.beginPath();ctx.moveTo(1.63,2.116);ctx.quadraticCurveTo(2.30,2.04,3.00,2.15);ctx.stroke();
+  ctx.fillStyle='#84303b';
+  for(const [x,y,r] of [[.997,.276,.020],[1.11,.245,.014],[1.67,1.88,.013],[2.96,1.99,.017]]){
+    ctx.beginPath();ctx.ellipse(x,y,r,r*1.4,-.52,0,Math.PI*2);ctx.fill();
+  }
+}).map;
+const bedTagPaint=mesh(new THREE.PlaneGeometry(tagWallWidth,tagWallHeight),new THREE.MeshStandardMaterial({
+  map:bedTagMap,transparent:true,depthWrite:false,roughness:1,polygonOffset:true,polygonOffsetFactor:-1
+}),tagWallLeft+tagWallWidth/2,tagWallTop-tagWallHeight/2,roomBack+.018);
+bedTagPaint.castShadow=false;
+bedTagPaint.userData.noInteraction=true;
 const backCollage=group(0,0,roomBack);
-photoDecal(17,-1.928,2.324,.014,.158,.198,backCollage,-.056);
+photoDecal(17,-1.725,2.357,.014,.158,.198,backCollage,-.056);
 photoDecal(18,-.028,2.383,.013,.577,.496,backCollage,.037);
 photoDecal(19,-.245,1.862,.014,.166,.114,backCollage,.032);
 photoDecal(17,-.267,1.645,.016,.128,.221,backCollage,-.056);
 photoDecal(19,-.294,1.437,.014,.12,.145,backCollage,.027);
-photoDecal(20,smallShelfX-.470,2.381,.017,.192,.247,backCollage,-.11);
+photoDecal(20,smallShelfX-.470,2.295,.017,.192,.213,backCollage,-.11);
 photoDecal(17,smallShelfX-.317,2.229,.018,.163,.184,backCollage,.072);
 photoDecal(19,smallShelfX-.364,2.017,.019,.143,.167,backCollage,.02);
 
